@@ -1,0 +1,39 @@
+{
+  "shop_name": "Một Ngụm",
+  "api_key": "doi-ma-nay-di",
+  "db_path": "data/motngum.db",
+  "data_dir": "data",
+  "auto_print": true,
+  "print_delay_seconds": 4,
+  "order_code_reuse_hours": 12,
+  "printer": {
+    "language": "tspl",
+    "transport": "dryrun",
+    "host": "192.168.1.100",
+    "port": 9100,
+    "device": "/dev/usb/lp0",
+    "cups_name": "Xprinter",
+    "windows_name": "Xprinter XP-365B",
+    "density": 8,
+    "speed": 4,
+    "escpos_cut": true
+  },
+  "label": {
+    "width_mm": 50,
+    "height_mm": 30,
+    "gap_mm": 2,
+    "dpi": 203,
+    "margin_mm": 1.5,
+    "font_path": "",
+    "font_bold_path": "",
+    "show_price": false,
+    "footer": "{time} · {shop}"
+  },
+  "sources": {
+    "com.grab.merchant": {
+      "name": "grab",
+      "label": "GRAB",
+      "code_patterns": ["\\bGF-?\\d{2,6}\\b", "\\bGM-?\\d{2,6}\\b"]
+    }
+  }
+}

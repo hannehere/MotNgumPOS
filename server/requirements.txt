@@ -1,0 +1,6 @@
+fastapi>=0.110
+uvicorn>=0.27
+pillow>=10.0
+# Tuỳ chọn:
+# pytesseract>=0.3.10   # OCR ảnh chụp màn hình khi không đọc được chữ qua Accessibility (cần cài Tesseract + gói ngôn ngữ "vie")
+# pywin32>=306          # In trực tiếp qua máy in USB đã cài driver trên Windows

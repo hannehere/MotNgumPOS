@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="MotNgum Agent"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/btnNotif"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="1. Cấp quyền đọc thông báo" />
+
+        <Button
+            android:id="@+id/btnA11y"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="2. Bật Trợ năng “MotNgum – đọc đơn hàng”" />
+
+        <Button
+            android:id="@+id/btnAppInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Android 13+: Cho phép cài đặt hạn chế (App info → ⋮)" />
+
+        <Button
+            android:id="@+id/btnBattery"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tắt tối ưu pin cho app" />
+
+        <TextView style="@android:style/TextAppearance.Material.Subhead"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" android:text="Máy chủ POS (máy tính ở quầy)" />
+
+        <EditText
+            android:id="@+id/serverUrl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="http://192.168.1.10:8686"
+            android:inputType="textUri" />
+
+        <EditText
+            android:id="@+id/apiKey"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="API key (giống trong config.json)"
+            android:inputType="text" />
+
+        <TextView style="@android:style/TextAppearance.Material.Subhead"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" android:text="App bán hàng cần theo dõi (package, cách nhau dấu phẩy)" />
+
+        <EditText
+            android:id="@+id/packages"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text" />
+
+        <TextView style="@android:style/TextAppearance.Material.Subhead"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Từ khoá thông báo có đơn (regex)" />
+
+        <EditText
+            android:id="@+id/notifRegex"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text" />
+
+        <TextView style="@android:style/TextAppearance.Material.Subhead"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Mẫu mã đơn trên màn hình (regex)" />
+
+        <EditText
+            android:id="@+id/codeRegex"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text" />
+
+        <Switch
+            android:id="@+id/autoOpen"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Tự mở đơn khi có thông báo" />
+
+        <Switch
+            android:id="@+id/autoScroll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tự cuộn để đọc hết món" />
+
+        <Switch
+            android:id="@+id/uploadShots"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Gửi ảnh chụp màn hình đơn về máy chủ" />
+
+        <Switch
+            android:id="@+id/debugAll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Chế độ dò lỗi: gửi mọi màn hình đọc được" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnSave"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Lưu" />
+
+            <Button
+                android:id="@+id/btnTest"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Kiểm tra kết nối" />
+        </LinearLayout>
+
+        <TextView style="@android:style/TextAppearance.Material.Subhead"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" android:text="Nhật ký" />
+
+        <TextView
+            android:id="@+id/log"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:textIsSelectable="true"
+            android:textSize="11sp" />
+    </LinearLayout>
+</ScrollView>

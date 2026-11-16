@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MotNgum Agent</string>
+    <string name="notif_service_label">MotNgum – nghe thông báo đơn</string>
+    <string name="a11y_service_label">MotNgum – đọc đơn hàng</string>
+    <string name="a11y_description">Đọc chữ trên màn hình chi tiết đơn của app bán hàng (GrabMerchant…) và chụp màn hình đơn, gửi về máy chủ MotNgum POS trong mạng nội bộ để in tem ly. Chỉ hoạt động với các app được chọn trong cài đặt.</string>
+</resources>

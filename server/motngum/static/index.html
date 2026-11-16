@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MotNgum POS</title>
+<style>
+  :root { --bg:#f5f3ef; --card:#fff; --ink:#1d1b18; --mut:#6d675f; --line:#e3ded6; --acc:#00a65a; --warn:#d97706; --bad:#c2410c; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--ink); }
+  header { display:flex; gap:12px; align-items:center; padding:10px 16px; background:var(--ink); color:#fff; flex-wrap:wrap; }
+  header h1 { font-size:18px; margin:0 12px 0 0; }
+  nav button { background:transparent; color:#cfc9c0; border:0; padding:6px 10px; font-size:15px; cursor:pointer; border-radius:6px; }
+  nav button.on { background:#3a3631; color:#fff; }
+  .pill { font-size:12px; padding:2px 8px; border-radius:99px; background:#3a3631; color:#cfc9c0; margin-left:auto; }
+  main { padding:16px; max-width:1400px; margin:0 auto; }
+  .cols { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px; }
+  .col h2 { font-size:14px; text-transform:uppercase; letter-spacing:.04em; color:var(--mut); margin:0 0 8px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px; margin-bottom:10px; }
+  .card.fresh { border-color:var(--acc); box-shadow:0 0 0 2px #00a65a33; }
+  .card .top { display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+  .code { font-weight:700; font-size:18px; }
+  .src { font-size:11px; font-weight:700; padding:1px 6px; border-radius:4px; background:#00a65a1a; color:var(--acc); margin-right:6px; }
+  .src.manual { background:#0000000d; color:var(--mut); }
+  .time { color:var(--mut); font-size:13px; }
+  ul.items { margin:8px 0; padding-left:0; list-style:none; }
+  ul.items li { padding:3px 0; border-top:1px dashed var(--line); }
+  ul.items li:first-child { border-top:0; }
+  .qty { font-weight:700; margin-right:4px; }
+  .opt { color:var(--mut); font-size:13px; }
+  .note { color:var(--bad); font-size:13px; }
+  .warn { color:var(--warn); font-size:13px; font-weight:600; }
+  .actions { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+  button.b { border:1px solid var(--line); background:#fff; border-radius:7px; padding:6px 10px; cursor:pointer; font-size:14px; }
+  button.b.pri { background:var(--acc); border-color:var(--acc); color:#fff; }
+  button.b:hover { filter:brightness(.96); }
+  .labels { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+  .labels img { width:150px; border:1px solid var(--line); border-radius:4px; background:#fff; cursor:pointer; }
+  textarea, input, select { width:100%; font:inherit; padding:8px; border:1px solid var(--line); border-radius:7px; background:#fff; }
+  textarea { min-height:160px; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:13px; }
+  .row { display:flex; gap:8px; margin:8px 0; flex-wrap:wrap; }
+  .row > * { flex:1; min-width:140px; }
+  pre { background:#fff; border:1px solid var(--line); border-radius:7px; padding:10px; overflow:auto; font-size:12px; max-height:420px; }
+  .hidden { display:none; }
+  .empty { color:var(--mut); font-size:14px; padding:8px 0; }
+  #toast { position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; padding:8px 14px; border-radius:8px; opacity:0; transition:opacity .2s; }
+  #toast.show { opacity:1; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🧋 MotNgum POS</h1>
+  <nav>
+    <button data-tab="orders" class="on">Đơn hàng</button>
+    <button data-tab="new">Tạo đơn</button>
+    <button data-tab="parse">Thử bóc đơn</button>
+    <button data-tab="log">Nhật ký agent</button>
+  </nav>
+  <span class="pill" id="status">…</span>
+</header>
+<main>
+  <section id="tab-orders">
+    <div class="row" style="max-width:520px">
+      <button class="b" style="flex:0 0 auto" onclick="testPrint()">🖨 In tem thử</button>
+      <label style="display:flex;gap:6px;align-items:center;flex:0 0 auto"><input type="checkbox" id="sound" checked style="width:auto"> Chuông báo đơn mới</label>
+    </div>
+    <div class="cols">
+      <div class="col"><h2>Mới / chờ in</h2><div id="col-new"></div></div>
+      <div class="col"><h2>Đã in — đang pha</h2><div id="col-printed"></div></div>
+      <div class="col"><h2>Hoàn thành gần đây</h2><div id="col-done"></div></div>
+    </div>
+  </section>
+
+  <section id="tab-new" class="hidden" style="max-width:720px">
+    <p>Mỗi dòng một món: <code>2x Trà sữa trân châu | Size L, 50% đường | ghi chú: ít ngọt</code></p>
+    <div class="row">
+      <input id="m-code" placeholder="Mã đơn (tuỳ chọn)">
+      <input id="m-customer" placeholder="Tên khách (tuỳ chọn)">
+      <select id="m-source"><option value="manual">Tại quầy</option><option value="grab">Grab</option><option value="shopeefood">ShopeeFood</option><option value="be">Be</option></select>
+    </div>
+    <textarea id="m-text" placeholder="1x Cà phê sữa đá | Size M, Ít đá&#10;2x Trà đào cam sả | 70% đường"></textarea>
+    <div class="row"><input id="m-note" placeholder="Ghi chú cho cả đơn"></div>
+    <div class="actions">
+      <button class="b pri" onclick="createOrder(true)">Tạo & in tem</button>
+      <button class="b" onclick="createOrder(false)">Chỉ tạo đơn</button>
+    </div>
+  </section>
+
+  <section id="tab-parse" class="hidden">
+    <p>Dán chữ đọc được từ màn hình Grab (xem ở tab <b>Nhật ký agent</b>) để kiểm tra parser bóc đúng món chưa.</p>
+    <div class="row"><input id="p-pkg" value="com.grab.merchant"></div>
+    <div class="cols">
+      <textarea id="p-text" oninput="parsePreview()"></textarea>
+      <pre id="p-out"></pre>
+    </div>
+  </section>
+
+  <section id="tab-log" class="hidden">
+    <div class="actions"><button class="b" onclick="loadLog()">Tải lại</button></div>
+    <div id="log"></div>
+  </section>
+</main>
+<div id="toast"></div>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let seen = null;
+
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); }
+async function api(path, opts = {}) {
+  const r = await fetch(path, { headers: {'Content-Type':'application/json'}, ...opts });
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.detail || r.statusText);
+  return data;
+}
+function beep() {
+  if (!$('#sound').checked) return;
+  try { const a = new AudioContext(), o = a.createOscillator(), g = a.createGain();
+    o.connect(g); g.connect(a.destination); o.frequency.value = 880; g.gain.value = .15;
+    o.start(); setTimeout(() => { o.frequency.value = 1320; }, 150); setTimeout(() => { o.stop(); a.close(); }, 400);
+  } catch (e) {}
+}
+
+function card(o) {
+  const t = new Date(o.created_at * 1000).toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'});
+  const items = o.items.map(i => `<li><span class="qty">${i.qty}×</span>${esc(i.name)}
+      ${i.options.length ? `<div class="opt">${esc(i.options.join(', '))}</div>` : ''}
+      ${i.note ? `<div class="note">* ${esc(i.note)}</div>` : ''}</li>`).join('');
+  const btn = (label, fn, cls = '') => `<button class="b ${cls}" onclick="${fn}">${label}</button>`;
+  let acts = btn(o.print_count > 0 ? '🖨 In lại' : '🖨 In tem', `printOrder(${o.id})`, o.status === 'new' ? 'pri' : '');
+  if (o.status !== 'done') acts += btn('✔ Xong', `setStatus(${o.id},'done')`, o.status === 'printed' ? 'pri' : '');
+  if (o.status !== 'cancelled' && o.status !== 'done') acts += btn('✕ Huỷ', `setStatus(${o.id},'cancelled')`);
+  acts += btn('👁 Xem tem', `toggleLabels(${o.id},${o.cup_count})`);
+  if (o.screenshot) acts += `<a class="b" style="text-decoration:none;color:inherit" target="_blank" href="/api/orders/${o.id}/screenshot">📷 Ảnh</a>`;
+  return `<div class="card" id="o${o.id}">
+    <div class="top"><div><span class="src ${o.source === 'manual' ? 'manual' : ''}">${esc(o.source.toUpperCase())}</span><span class="code">${esc(o.code)}</span></div>
+      <span class="time">${t} · ${o.cup_count} ly</span></div>
+    ${o.customer ? `<div class="time">${esc(o.customer)}</div>` : ''}
+    ${o.changed_after_print ? '<div class="warn">⚠ Đơn thay đổi sau khi đã in — kiểm tra & in lại</div>' : ''}
+    ${o.print_count < 0 ? '<div class="warn">Chưa in — bấm “In tem” (hoặc kiểm tra máy in)</div>' : ''}
+    <ul class="items">${items}</ul>
+    ${o.note ? `<div class="note">Ghi chú: ${esc(o.note)}</div>` : ''}
+    <div class="actions">${acts}</div><div class="labels" id="lb${o.id}"></div></div>`;
+}
+
+async function loadOrders() {
+  try {
+    const orders = await api('/api/orders?limit=150');
+    const ids = new Set(orders.map(o => o.id));
+    if (seen && orders.some(o => !seen.has(o.id) && o.source !== 'manual')) beep();
+    const fresh = seen ? orders.filter(o => !seen.has(o.id)).map(o => o.id) : [];
+    seen = ids;
+    const by = s => orders.filter(s);
+    const render = (el, list) => $(el).innerHTML = list.length ? list.map(card).join('') : '<div class="empty">Không có đơn</div>';
+    const open = [...document.querySelectorAll('.labels')].filter(e => e.innerHTML).map(e => e.id);
+    render('#col-new', by(o => o.status === 'new'));
+    render('#col-printed', by(o => o.status === 'printed'));
+    render('#col-done', by(o => o.status === 'done').slice(0, 20));
+    fresh.forEach(id => $('#o' + id)?.classList.add('fresh'));
+    open.forEach(id => { const o = orders.find(x => 'lb' + x.id === id); if (o) toggleLabels(o.id, o.cup_count); });
+  } catch (e) { $('#status').textContent = 'Mất kết nối server'; }
+}
+async function loadStatus() {
+  try { const h = await api('/api/health'); $('#status').textContent = `Máy in: ${h.printer} · Tự in: ${h.auto_print ? 'bật' : 'tắt'}`; } catch (e) {}
+}
+async function printOrder(id) { try { const r = await api(`/api/orders/${id}/print`, {method:'POST', body:'{}'}); toast('Đã gửi lệnh in → ' + r.dest); loadOrders(); } catch (e) { toast('Lỗi in: ' + e.message); } }
+async function setStatus(id, status) { await api(`/api/orders/${id}`, {method:'PATCH', body: JSON.stringify({status})}); loadOrders(); }
+async function testPrint() { try { const r = await api('/api/printer/test', {method:'POST'}); toast('In thử → ' + r.dest); } catch (e) { toast('Lỗi in: ' + e.message); } }
+function toggleLabels(id, n) {
+  const el = $('#lb' + id);
+  if (!el) return;
+  if (el.innerHTML) { el.innerHTML = ''; return; }
+  el.innerHTML = Array.from({length: n}, (_, i) =>
+    `<img title="Bấm để in riêng tem ${i+1}" src="/api/orders/${id}/labels/${i+1}.png" onclick="printOne(${id},${i+1})">`).join('');
+}
+async function printOne(id, n) { try { await api(`/api/orders/${id}/print`, {method:'POST', body: JSON.stringify({labels:[n]})}); toast(`Đã in tem ${n}`); } catch (e) { toast('Lỗi in: ' + e.message); } }
+async function createOrder(printNow) {
+  try {
+    await api('/api/orders', {method:'POST', body: JSON.stringify({
+      text: $('#m-text').value, code: $('#m-code').value, customer: $('#m-customer').value,
+      note: $('#m-note').value, source: $('#m-source').value, print_now: printNow })});
+    ['#m-text','#m-code','#m-customer','#m-note'].forEach(s => $(s).value = '');
+    toast('Đã tạo đơn'); switchTab('orders'); loadOrders();
+  } catch (e) { toast('Lỗi: ' + e.message); }
+}
+let pt;
+function parsePreview() {
+  clearTimeout(pt);
+  pt = setTimeout(async () => {
+    const r = await api('/api/parse', {method:'POST', body: JSON.stringify({text: $('#p-text').value, package: $('#p-pkg').value})});
+    $('#p-out').textContent = JSON.stringify(r, null, 2);
+  }, 250);
+}
+async function loadLog() {
+  const ev = await api('/api/events?limit=60');
+  $('#log').innerHTML = ev.map(e => {
+    let p = e.payload; try { p = JSON.stringify(JSON.parse(p), null, 2); } catch (_) {}
+    const lines = (() => { try { return JSON.parse(e.payload).lines; } catch (_) { return null; } })();
+    return `<div class="card"><div class="top"><b>${esc(e.kind)}</b><span class="time">${new Date(e.created_at*1000).toLocaleString('vi-VN')} ${esc(e.package)} ${e.order_id ? '· đơn #' + e.order_id : ''}</span></div>
+      ${lines ? `<div class="actions"><button class="b" onclick='usePaste(${JSON.stringify(JSON.stringify(lines.join("\n")))})'>Đưa sang “Thử bóc đơn”</button></div>` : ''}
+      <pre>${esc(p)}</pre></div>`;
+  }).join('') || '<div class="empty">Chưa có sự kiện</div>';
+}
+function usePaste(text) { switchTab('parse'); $('#p-text').value = JSON.parse(text); parsePreview(); }
+function switchTab(name) {
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.tab === name));
+  document.querySelectorAll('main > section').forEach(s => s.classList.toggle('hidden', s.id !== 'tab-' + name));
+  if (name === 'log') loadLog();
+}
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => switchTab(b.dataset.tab));
+loadStatus(); loadOrders(); setInterval(loadOrders, 3000);
+</script>
+</body>
+</html>
