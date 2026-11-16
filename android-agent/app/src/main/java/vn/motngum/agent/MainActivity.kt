@@ -35,6 +35,15 @@ class MainActivity : Activity() {
         val autoScroll = findViewById<Switch>(R.id.autoScroll).apply { isChecked = prefs.autoScroll }
         val uploadShots = findViewById<Switch>(R.id.uploadShots).apply { isChecked = prefs.uploadScreenshots }
         val debugAll = findViewById<Switch>(R.id.debugAll).apply { isChecked = prefs.debugSendAll }
+        val standalone = findViewById<Switch>(R.id.standalone).apply { isChecked = prefs.standalone }
+        val printerHost = findViewById<EditText>(R.id.printerHost).apply { setText(prefs.printerHost) }
+        val printerPort = findViewById<EditText>(R.id.printerPort).apply { setText(prefs.printerPort.toString()) }
+        val printDelay = findViewById<EditText>(R.id.printDelay).apply { setText((prefs.printDelayMs / 1000).toString()) }
+        val labelW = findViewById<EditText>(R.id.labelW).apply { setText(prefs.labelWidthMm.toString()) }
+        val labelH = findViewById<EditText>(R.id.labelH).apply { setText(prefs.labelHeightMm.toString()) }
+        val labelGap = findViewById<EditText>(R.id.labelGap).apply { setText(prefs.labelGapMm.toString()) }
+        val shopName = findViewById<EditText>(R.id.shopName).apply { setText(prefs.shopName) }
+        val autoPrint = findViewById<Switch>(R.id.autoPrint).apply { isChecked = prefs.autoPrint }
 
         findViewById<Button>(R.id.btnSave).setOnClickListener {
             val badRegex = listOf(notifRegex, codeRegex).firstOrNull {
@@ -53,6 +62,15 @@ class MainActivity : Activity() {
             prefs.autoScroll = autoScroll.isChecked
             prefs.uploadScreenshots = uploadShots.isChecked
             prefs.debugSendAll = debugAll.isChecked
+            prefs.standalone = standalone.isChecked
+            prefs.printerHost = printerHost.text.toString()
+            prefs.printerPort = printerPort.text.toString().toIntOrNull() ?: 9100
+            prefs.printDelayMs = (printDelay.text.toString().toLongOrNull() ?: 4).coerceIn(1, 60) * 1000
+            prefs.labelWidthMm = labelW.text.toString().toIntOrNull()?.coerceIn(20, 80) ?: 50
+            prefs.labelHeightMm = labelH.text.toString().toIntOrNull()?.coerceIn(15, 100) ?: 30
+            prefs.labelGapMm = labelGap.text.toString().toIntOrNull()?.coerceIn(0, 10) ?: 2
+            prefs.shopName = shopName.text.toString()
+            prefs.autoPrint = autoPrint.isChecked
             OrderReaderService.instance?.applyPackages()
             Toast.makeText(this, "Đã lưu", Toast.LENGTH_SHORT).show()
             refreshStatus()

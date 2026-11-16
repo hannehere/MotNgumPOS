@@ -51,6 +51,50 @@ class Prefs(context: Context) {
         get() = sp.getBoolean("debugSendAll", false)
         set(v) = sp.edit().putBoolean("debugSendAll", v).apply()
 
+    // ------------------------------------------- chế độ tự chạy trên tablet ---
+    /** true = tablet tự tách món & in thẳng ra máy in LAN; false = gửi về MotNgum POS server trên máy tính. */
+    var standalone: Boolean
+        get() = sp.getBoolean("standalone", true)
+        set(v) = sp.edit().putBoolean("standalone", v).apply()
+
+    var printerHost: String
+        get() = sp.getString("printerHost", "")!!
+        set(v) = sp.edit().putString("printerHost", v.trim()).apply()
+
+    var printerPort: Int
+        get() = sp.getInt("printerPort", 9100)
+        set(v) = sp.edit().putInt("printerPort", v).apply()
+
+    var labelWidthMm: Int
+        get() = sp.getInt("labelW", 50)
+        set(v) = sp.edit().putInt("labelW", v).apply()
+
+    var labelHeightMm: Int
+        get() = sp.getInt("labelH", 30)
+        set(v) = sp.edit().putInt("labelH", v).apply()
+
+    var labelGapMm: Int
+        get() = sp.getInt("labelGap", 2)
+        set(v) = sp.edit().putInt("labelGap", v).apply()
+
+    val labelSize: LabelSize get() = LabelSize(labelWidthMm, labelHeightMm, labelGapMm)
+
+    var printDensity: Int
+        get() = sp.getInt("density", 8)
+        set(v) = sp.edit().putInt("density", v).apply()
+
+    var shopName: String
+        get() = sp.getString("shopName", "Một Ngụm")!!
+        set(v) = sp.edit().putString("shopName", v.trim()).apply()
+
+    var autoPrint: Boolean
+        get() = sp.getBoolean("autoPrint", true)
+        set(v) = sp.edit().putBoolean("autoPrint", v).apply()
+
+    var printDelayMs: Long
+        get() = sp.getLong("printDelayMs", 4000)
+        set(v) = sp.edit().putLong("printDelayMs", v).apply()
+
     companion object {
         const val DEFAULT_PACKAGES = "com.grab.merchant"
         const val DEFAULT_CODE_REGEX = "\\bG[FM]-?\\d{2,6}\\b"

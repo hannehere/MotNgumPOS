@@ -12,7 +12,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="MotNgum Agent"
+            android:text="Cài đặt MotNgum"
             android:textSize="22sp"
             android:textStyle="bold" />
 
@@ -49,7 +49,76 @@
 
         <TextView style="@android:style/TextAppearance.Material.Subhead"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:layout_marginTop="16dp" android:text="Máy chủ POS (máy tính ở quầy)" />
+            android:layout_marginTop="16dp" android:text="Máy in tem (Xprinter XP-365B qua LAN)" />
+
+        <Switch
+            android:id="@+id/standalone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tự chạy trên máy này (in thẳng ra máy in, không cần máy tính)" />
+
+        <EditText
+            android:id="@+id/printerHost"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="IP máy in, ví dụ 192.168.1.100"
+            android:inputType="text" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/printerPort"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Cổng (9100)"
+                android:inputType="number" />
+
+            <EditText
+                android:id="@+id/printDelay"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Chờ trước khi in (giây)"
+                android:inputType="number" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Khổ tem: rộng × cao × khe (mm)" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <EditText android:id="@+id/labelW" android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:hint="Rộng" android:inputType="number" />
+            <EditText android:id="@+id/labelH" android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:hint="Cao" android:inputType="number" />
+            <EditText android:id="@+id/labelGap" android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:hint="Khe" android:inputType="number" />
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/shopName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Tên quán (in ở chân tem)"
+            android:inputType="text" />
+
+        <Switch
+            android:id="@+id/autoPrint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tự in tem khi có đơn" />
+
+        <TextView style="@android:style/TextAppearance.Material.Subhead"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" android:text="Máy chủ POS trên máy tính (chỉ dùng khi tắt “Tự chạy”)" />
 
         <EditText
             android:id="@+id/serverUrl"

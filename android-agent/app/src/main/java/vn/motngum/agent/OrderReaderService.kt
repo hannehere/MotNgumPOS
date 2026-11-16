@@ -48,6 +48,7 @@ class OrderReaderService : AccessibilityService() {
         prefs = Prefs(this)
         client = ServerClient(this)
         applyPackages()
+        OrderManager.scheduleAutoPrint(this) // in các đơn còn sót (nếu app vừa khởi động lại)
         AgentLog.add("Đã bật Trợ năng – theo dõi: ${prefs.packages.joinToString()}")
     }
 
@@ -216,6 +217,14 @@ class OrderReaderService : AccessibilityService() {
     }
 
     private fun sendScreen(pkg: String, lines: List<String>) {
+        if (prefs.standalone) {
+            val snapshot = lines.toList()
+            bg.execute {
+                val id = OrderManager.ingestScreen(this, pkg, snapshot)
+                if (id == null && prefs.debugSendAll) AgentLog.add("Màn hình (${snapshot.size} dòng): ${snapshot.take(12).joinToString(" | ")}")
+            }
+            return
+        }
         client.post(
             "/api/agent/screen",
             JSONObject()
@@ -244,6 +253,10 @@ class OrderReaderService : AccessibilityService() {
                 ) else bmp
                 val bos = ByteArrayOutputStream()
                 small.compress(Bitmap.CompressFormat.JPEG, 75, bos)
+                if (prefs.standalone) {
+                    saveScreenshotLocally(pkg, tag, bos.toByteArray())
+                    return
+                }
                 AgentLog.add("Đã chụp màn hình ($tag) – gửi server")
                 client.post(
                     "/api/agent/screenshot",
@@ -258,6 +271,22 @@ class OrderReaderService : AccessibilityService() {
                 AgentLog.add("Chụp màn hình lỗi: $errorCode (app có thể chặn chụp màn hình)")
             }
         })
+    }
+
+    /** Lưu ảnh đơn vào bộ nhớ app, gắn vào đơn có mã [code]; xoá ảnh cũ hơn 3 ngày. */
+    private fun saveScreenshotLocally(pkg: String, code: String, jpeg: ByteArray) {
+        val dir = java.io.File(filesDir, "screenshots").apply { mkdirs() }
+        val cutoff = System.currentTimeMillis() - 3 * 86_400_000L
+        dir.listFiles()?.filter { it.lastModified() < cutoff }?.forEach { it.delete() }
+        val f = java.io.File(dir, "${System.currentTimeMillis()}-${code.replace(Regex("[^A-Za-z0-9-]"), "_")}.jpg")
+        f.writeBytes(jpeg)
+        // đợi đơn được lưu xong (ingest chạy trên cùng hàng đợi bg) rồi gắn ảnh
+        bg.execute {
+            OrderStore.get(this).findRecent(OrderManager.sourceFor(pkg), code)?.let {
+                OrderStore.get(this).setScreenshot(it.id, f.absolutePath)
+            }
+        }
+        AgentLog.add("Đã lưu ảnh chụp đơn $code")
     }
 
     companion object {

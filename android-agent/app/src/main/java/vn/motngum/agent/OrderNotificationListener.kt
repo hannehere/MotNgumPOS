@@ -46,7 +46,7 @@ class OrderNotificationListener : NotificationListenerService() {
         recent[key] = now
 
         AgentLog.add("Thông báo đơn từ $pkg: $title – $text")
-        ServerClient(this).post(
+        if (!prefs.standalone) ServerClient(this).post(
             "/api/agent/notification",
             JSONObject()
                 .put("package", pkg)

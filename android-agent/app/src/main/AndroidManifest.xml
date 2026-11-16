@@ -21,8 +21,15 @@
 
         <activity
             android:name=".MainActivity"
+            android:exported="false"
+            android:label="Cài đặt"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".OrdersActivity"
             android:exported="true"
-            android:windowSoftInputMode="adjustResize">
+            android:theme="@android:style/Theme.Material.Light.NoActionBar"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
