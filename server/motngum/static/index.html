@@ -62,6 +62,7 @@
   <section id="tab-orders">
     <div class="row" style="max-width:520px">
       <button class="b" style="flex:0 0 auto" onclick="testPrint()">🖨 In tem thử</button>
+      <button class="b" style="flex:0 0 auto" onclick="calibrate()">↕ Căn khe tem</button>
       <label style="display:flex;gap:6px;align-items:center;flex:0 0 auto"><input type="checkbox" id="sound" checked style="width:auto"> Chuông báo đơn mới</label>
     </div>
     <div class="cols">
@@ -165,6 +166,7 @@ async function loadStatus() {
 }
 async function printOrder(id) { try { const r = await api(`/api/orders/${id}/print`, {method:'POST', body:'{}'}); toast('Đã gửi lệnh in → ' + r.dest); loadOrders(); } catch (e) { toast('Lỗi in: ' + e.message); } }
 async function setStatus(id, status) { await api(`/api/orders/${id}`, {method:'PATCH', body: JSON.stringify({status})}); loadOrders(); }
+async function calibrate() { try { await api('/api/printer/calibrate', {method:'POST'}); toast('Máy in đang dò khe tem…'); } catch (e) { toast('Lỗi: ' + e.message); } }
 async function testPrint() { try { const r = await api('/api/printer/test', {method:'POST'}); toast('In thử → ' + r.dest); } catch (e) { toast('Lỗi in: ' + e.message); } }
 function toggleLabels(id, n) {
   const el = $('#lb' + id);

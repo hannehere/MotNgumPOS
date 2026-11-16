@@ -21,7 +21,7 @@ from .config import load_config, source_for_package
 from .db import DB, item_from_dict
 from .label import expand_cups, render_order_labels
 from .parser import ParsedOrder, parse_manual, parse_order, split_lines
-from .printer import PrinterError, print_images
+from .printer import PrinterError, print_images, send
 
 log = logging.getLogger("motngum")
 STATIC = Path(__file__).parent / "static"
@@ -245,6 +245,19 @@ def create_app(cfg: dict[str, Any] | None = None) -> FastAPI:
         images = render_order_labels(demo, cfg, "MN")
         try:
             return {"ok": True, "dest": print_images(images, cfg)}
+        except PrinterError as e:
+            raise HTTPException(502, str(e))
+
+    @app.post("/api/printer/calibrate")
+    def printer_calibrate() -> dict:
+        """Máy in tem TSPL tự dò khe giữa các tem (làm khi mới lắp cuộn tem / đổi khổ tem)."""
+        if cfg["printer"].get("language", "tspl") != "tspl":
+            raise HTTPException(400, "Chỉ dùng cho máy in tem (language = tspl)")
+        lab = cfg["label"]
+        data = (f"SIZE {lab['width_mm']} mm,{lab['height_mm']} mm\r\nGAP {lab['gap_mm']} mm,0 mm\r\n"
+                "GAPDETECT\r\n").encode()
+        try:
+            return {"ok": True, "dest": send(data, cfg["printer"], cfg.get("data_dir", "data"))}
         except PrinterError as e:
             raise HTTPException(502, str(e))
 

@@ -80,3 +80,9 @@ def test_tspl_and_escpos_bytes():
     assert data.endswith(b"PRINT 1,1\r\n")
     e = escpos_job([img])
     assert e.startswith(b"\x1b@\x1dv0\x00")
+
+
+def test_calibrate_sends_gapdetect(tmp_path):
+    c, _ = make(tmp_path, auto_print=False)
+    assert c.post("/api/printer/calibrate").json()["ok"]
+    assert b"GAPDETECT" in next((tmp_path / "prints").glob("*.bin")).read_bytes()

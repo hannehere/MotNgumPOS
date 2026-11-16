@@ -79,6 +79,30 @@ Lần đầu chạy sẽ tạo `server/config.json` (copy từ `config.example.j
 - Tem được vẽ thành ảnh rồi gửi lệnh `BITMAP`, nên **in được tiếng Việt có dấu** trên mọi máy in TSPL.
 - Khổ tem phổ biến cho ly: 50×30, 40×30, 35×25 mm — sửa `label.width_mm/height_mm` cho đúng cuộn tem.
 
+### Cấu hình cho Xprinter XP-365B
+
+XP-365B in nhiệt trực tiếp 203 dpi, có cổng USB + LAN và 2 chế độ **in tem / in bill**.
+Để in tem ly, máy phải ở **chế độ in tem (label)** — cách chuyển chế độ xem hướng dẫn đi kèm máy
+hoặc công cụ cài đặt của Xprinter.
+
+**Cách 1 – cắm dây LAN (khuyên dùng, không cần driver, chạy được trên mọi hệ điều hành):**
+cắm máy in vào router, in trang tự kiểm tra (self-test) của máy để xem địa chỉ IP, rồi:
+
+```json
+"printer": { "language": "tspl", "transport": "tcp", "host": "192.168.1.100", "port": 9100 }
+```
+
+**Cách 2 – cắm USB vào máy tính Windows:** cài driver Xprinter, xem đúng tên máy in trong
+*Control Panel → Devices and Printers*, rồi:
+
+```json
+"printer": { "language": "tspl", "transport": "windows", "windows_name": "Xprinter XP-365B" }
+```
+
+Khổ tem: sửa `label.width_mm`, `label.height_mm`, `label.gap_mm` đúng với cuộn tem đang dùng
+(ví dụ 50×30 mm, khe 2 mm). Khi mới lắp cuộn tem hoặc đổi khổ, bấm **“↕ Căn khe tem”** trên web để máy
+tự dò khe giữa các tem (nếu không, tem sẽ in lệch/lấn sang tem sau), sau đó bấm **“🖨 In tem thử”**.
+
 ## 2. Cài app Android (máy đang chạy GrabMerchant)
 
 1. Tải APK: tab **Actions** của repo → lần build mới nhất → *motngum-agent-apk*; hoặc tự build:
